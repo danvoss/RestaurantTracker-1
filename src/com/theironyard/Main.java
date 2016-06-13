@@ -152,12 +152,7 @@ public class Main {
 
                     int id = Integer.valueOf(request.queryParams("id"));
 
-                    User user = users.get(username);
-                    ArrayList<Restaurant> restList = selectRestaurants(conn);
-                    if (id <= 0 || id - 1 >= restList.size()) {
-                        throw new Exception("Invalid id");
-                    }
-
+                    //User user = users.get(username);
                     //user.restaurants.remove(id - 1);
 
                     deleteRestaurant(conn, id);
