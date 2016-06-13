@@ -6,15 +6,45 @@ import spark.Session;
 import spark.Spark;
 import spark.template.mustache.MustacheTemplateEngine;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
 
     static HashMap<String, User> users = new HashMap<>();
+
+    public static void insertRestaurant(Connection conn, String name, String location, int rating, String comment) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO restaurants VALUES (NULL, ?, ?, ?, ?)");
+        stmt.setString(1, name);
+        stmt.setString(2, location);
+        stmt.setInt(3, rating);
+        stmt.setString(4, comment);
+        stmt.execute();
+    }
+
+    public static void deleteRestaurant(Connection conn, int id) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM restaurants WHERE id = ?");
+        stmt.setInt(1, id);
+        stmt.execute();
+    }
+
+    public static ArrayList<Restaurant> selectRestaurants(Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM restaurants");
+        ResultSet results = stmt.executeQuery();
+        ArrayList<Restaurant> restList = new ArrayList<>();
+        while (results.next()) {
+            int id = results.getInt("id");
+            String name = results.getString("name");
+            String location = results.getString("location");
+            int rating = results.getInt("rating");
+            String comment = results.getString("comment");
+            Restaurant rest = new Restaurant(id, name, location, rating, comment);
+            restList.add(rest);
+        }
+        return restList;
+    }
+
 
     public static void main(String[] args) throws SQLException {
 
@@ -91,8 +121,10 @@ public class Main {
                         throw new Exception("User does not exist");
                     }
 
-                    Restaurant r = new Restaurant(name, location, rating, comment);
-                    user.restaurants.add(r);
+                    //Restaurant r = new Restaurant(name, location, rating, comment);
+                    //user.restaurants.add(r);
+
+                    insertRestaurant(conn, name, location, rating, comment);
 
                     response.redirect("/");
                     return "";
@@ -122,7 +154,10 @@ public class Main {
                     if (id <= 0 || id - 1 >= user.restaurants.size()) {
                         throw new Exception("Invalid id");
                     }
-                    user.restaurants.remove(id - 1);
+
+                    //user.restaurants.remove(id - 1);
+
+                    deleteRestaurant(conn, id);
 
                     response.redirect("/");
                     return "";
