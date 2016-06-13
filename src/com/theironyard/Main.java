@@ -1,5 +1,6 @@
 package com.theironyard;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.h2.tools.Server;
 import spark.ModelAndView;
 import spark.Session;
@@ -45,6 +46,16 @@ public class Main {
         return restList;
     }
 
+    public static void updateRestaurant(Connection conn, int id, String name, String location, int rating, String comment) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("UPDATE restaurants SET name = ?, location = ?, rating = ?, comment = ? WHERE id = ?");
+        stmt.setString(1, name);
+        stmt.setString(2, location);
+        stmt.setInt(3, rating);
+        stmt.setString(4, comment);
+        stmt.setInt(5, id);
+        stmt.execute();
+    }
+
 
     public static void main(String[] args) throws SQLException {
 
@@ -53,7 +64,6 @@ public class Main {
 
         Statement stmt = conn.createStatement();
         stmt.execute("CREATE TABLE IF NOT EXISTS restaurants (id IDENTITY, name VARCHAR, location VARCHAR, rating INT, comment VARCHAR)");
-
 
         Spark.init();
         Spark.get(
@@ -156,6 +166,28 @@ public class Main {
                     //user.restaurants.remove(id - 1);
 
                     deleteRestaurant(conn, id);
+
+                    response.redirect("/");
+                    return "";
+                }
+        );
+        Spark.post(
+                "/edit-restaurant",
+                (request, response) -> {
+                    Session session = request.session();
+                    String username = session.attribute("username");
+                    if (username == null) {
+                        throw new Exception("Not logged in");
+                    }
+
+                    int id = Integer.valueOf(request.queryParams("id"));
+
+                    String name = request.queryParams("name");
+                    String location = request.queryParams("location");
+                    int rating = Integer.valueOf(request.queryParams("rating"));
+                    String comment = request.queryParams("comment");
+
+                    updateRestaurant(conn, id, name, location, rating, comment);
 
                     response.redirect("/");
                     return "";
