@@ -68,7 +68,9 @@ public class Main {
                     }
                     else {
                         User user = users.get(username);
-                        m.put("restaurants", user.restaurants);
+                        ArrayList<Restaurant> restList = selectRestaurants(conn);
+                        m.put("restaurants", restList);
+                        //m.put("restaurants", user.restaurants);
                         return new ModelAndView(m, "home.html");
                     }
                 },
@@ -151,7 +153,8 @@ public class Main {
                     int id = Integer.valueOf(request.queryParams("id"));
 
                     User user = users.get(username);
-                    if (id <= 0 || id - 1 >= user.restaurants.size()) {
+                    ArrayList<Restaurant> restList = selectRestaurants(conn);
+                    if (id <= 0 || id - 1 >= restList.size()) {
                         throw new Exception("Invalid id");
                     }
 
