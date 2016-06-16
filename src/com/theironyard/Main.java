@@ -13,6 +13,8 @@ import java.util.HashMap;
 
 public class Main {
 
+    // this is a test comment
+
      static void insertRestaurant(Connection conn, String name, String location, int rating, String comment, int userId) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("INSERT INTO restaurants VALUES (NULL, ?, ?, ?, ?, ?)");
         stmt.setString(1, name);
